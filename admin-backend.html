@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企业管理后台</title>
+<style>
+:root {
+  --primary: #C15F3C;
+  --primary-light: #D4836A;
+  --primary-bg: rgba(193,95,60,0.08);
+  --primary-gradient: linear-gradient(135deg, #C15F3C, #A04E32);
+  --success: #6B8F5B;
+  --success-bg: rgba(107,143,91,0.08);
+  --warning: #C4903D;
+  --warning-bg: rgba(196,144,61,0.08);
+  --danger: #B84C4C;
+  --danger-bg: rgba(184,76,76,0.08);
+  --blue: #4A7FB5;
+  --blue-bg: rgba(74,127,181,0.08);
+  --bg: #F4F3EE;
+  --bg-secondary: #EDECEA;
+  --bg-tertiary: #DEDBD5;
+  --surface: #FFFFFF;
+  --text-primary: #2D2A26;
+  --text-secondary: #8A8580;
+  --text-tertiary: #B1ADA1;
+  --text-quaternary: #C8C4BC;
+  --divider: #D8D5CE;
+  --divider-light: #E8E6E1;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-card: 0 0.5px 1px rgba(45,42,38,0.02), 0 1px 3px rgba(45,42,38,0.03), 0 3px 8px rgba(45,42,38,0.02);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', 'PingFang SC', sans-serif;
+  background: var(--bg); color: var(--text-primary); min-height: 100vh; overflow: hidden;
+}
+
+/* ===== TOP HEADER ===== */
+.top-header {
+  background: var(--surface); border-bottom: 1px solid var(--divider-light);
+  padding: 12px 28px; position: relative; z-index: 100;
+}
+.top-header-row {
+  display: flex; align-items: center; gap: 14px;
+}
+.enterprise-avatar {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  background: var(--primary-gradient); display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 16px; flex-shrink: 0;
+}
+.enterprise-name { font-size: 17px; font-weight: 600; }
+.enterprise-stats {
+  display: flex; gap: 0; margin-top: 10px;
+}
+.enterprise-stat {
+  flex: 0 0 auto; padding: 0 24px; text-align: center; position: relative;
+}
+.enterprise-stat:not(:last-child)::after {
+  content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+  width: 1px; height: 28px; background: var(--divider-light);
+}
+.enterprise-stat-num {
+  font-size: 22px; font-weight: 700; color: var(--primary); line-height: 1.2;
+}
+.enterprise-stat-label {
+  font-size: 12px; color: var(--text-tertiary); margin-top: 2px;
+}
+
+/* ===== MAIN TABS ===== */
+.main-tabs {
+  background: var(--surface); padding: 0 28px;
+  display: flex; gap: 0; border-bottom: 1px solid var(--divider-light);
+}
+.main-tab {
+  padding: 12px 22px; font-size: 14px; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all 0.2s; user-select: none;
+}
+.main-tab:hover { color: var(--text-primary); }
+.main-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+/* ===== PAGE CONTAINER ===== */
+.page { display: none; height: calc(100vh - 130px); overflow: hidden; }
+.page.active { display: flex; flex-direction: column; }
+.page-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  height: 100%; color: var(--text-tertiary); font-size: 15px; gap: 8px;
+}
+
+/* ===== CONFIG LIST VIEW ===== */
+.config-list-view { padding: 28px; overflow-y: auto; height: 100%; }
+.config-list-view .section-title {
+  font-size: 13px; font-weight: 600; color: var(--text-tertiary);
+  text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 16px;
+}
+.config-cards-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;
+}
+/* Base card used in modals */
+.config-card {
+  background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card);
+  padding: 14px 18px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: all 0.15s; border: 1px solid transparent;
+}
+.config-card:hover { border-color: var(--primary-light); }
+.config-card-lg {
+  background: var(--surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-card);
+  padding: 24px; cursor: pointer; transition: all 0.2s;
+  border: 1.5px solid transparent; display: flex; flex-direction: column; gap: 12px;
+  min-height: 140px;
+}
+.config-card-lg:hover {
+  border-color: var(--primary-light); transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(45,42,38,0.08);
+}
+.config-card-lg-top {
+  display: flex; align-items: center; gap: 14px;
+}
+.config-card-lg-icon {
+  width: 48px; height: 48px; border-radius: var(--radius-lg);
+  background: var(--primary-bg); display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.config-card-lg-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.config-card-lg-tag {
+  display: inline-flex; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 500; background: var(--success-bg); color: var(--success);
+  margin-left: auto; flex-shrink: 0;
+}
+.config-card-lg-desc {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6; flex: 1;
+}
+.config-card-lg-footer {
+  display: flex; align-items: center; justify-content: space-between; margin-top: auto;
+}
+.config-card-lg-meta { font-size: 12px; color: var(--text-tertiary); }
+.config-card-lg-arrow {
+  width: 28px; height: 28px; border-radius: 50%; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-tertiary); font-size: 14px; transition: all 0.15s;
+}
+.config-card-lg:hover .config-card-lg-arrow {
+  background: var(--primary-bg); color: var(--primary);
+}
+
+/* ===== DETAIL VIEW (full page overlay) ===== */
+.detail-view {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  flex-direction: column; background: var(--bg);
+}
+.detail-view.active { display: flex; }
+
+/* Detail top header */
+.detail-top-header {
+  background: var(--surface); border-bottom: 1px solid var(--divider-light);
+  padding: 12px 28px; display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+}
+.back-btn {
+  width: 32px; height: 32px; border-radius: var(--radius-md); border: none;
+  background: var(--bg-secondary); cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.back-btn:hover { background: var(--bg-tertiary); }
+.detail-top-title { font-size: 16px; font-weight: 600; flex: 1; }
+.detail-body {
+  display: flex; flex: 1; overflow: hidden;
+}
+/* Left: Preview */
+.preview-panel {
+  width: 340px; min-width: 340px; background: var(--bg-secondary);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 24px; overflow-y: auto; border-right: 1px solid var(--divider-light);
+}
+.preview-phone {
+  width: 260px; background: #1a1a1a; border-radius: 36px;
+  padding: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+.preview-screen {
+  background: #fff; border-radius: 28px; overflow: hidden;
+  min-height: 460px; display: flex; flex-direction: column;
+}
+.preview-notch {
+  width: 90px; height: 22px; background: #1a1a1a;
+  margin: 0 auto; border-radius: 0 0 14px 14px;
+}
+.preview-header-media { position: relative; width: 100%; }
+.preview-video-cover {
+  width: 100%; aspect-ratio: 16/9; background: linear-gradient(135deg, #2D2A26, #555);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  font-size: 24px; position: relative;
+}
+.preview-video-cover .play-icon {
+  width: 36px; height: 36px; background: rgba(255,255,255,0.3);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.preview-image-gallery {
+  display: flex; gap: 3px; padding: 5px 6px; overflow-x: auto;
+}
+.preview-image-thumb {
+  width: 48px; height: 48px; border-radius: 6px; flex-shrink: 0;
+  background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-tertiary); overflow: hidden;
+}
+.preview-image-thumb.has-img { background: var(--blue-bg); border: 1px solid var(--blue); }
+.preview-image-thumb.add-btn {
+  border: 1.5px dashed var(--divider); background: transparent; cursor: pointer; font-size: 18px;
+}
+.preview-modules {
+  padding: 10px 8px 16px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+}
+.preview-module-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: var(--bg, #F4F3EE); border-radius: 10px;
+}
+.preview-module-icon {
+  width: 32px; height: 32px; border-radius: 10px; background: var(--primary-bg);
+  display: flex; align-items: center; justify-content: center; font-size: 15px;
+  flex-shrink: 0;
+}
+.preview-module-text { flex: 1; min-width: 0; }
+.preview-module-title { font-size: 11px; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+.preview-module-desc { font-size: 9px; color: var(--text-tertiary); line-height: 1.3; margin-top: 1px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preview-label {
+  font-size: 12px; color: var(--text-tertiary); text-align: center; margin-top: 14px;
+}
+/* Right: Form area */
+.form-area {
+  flex: 1; overflow-y: auto; padding: 24px 28px 40px;
+}
+.detail-top-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;
+}
+
+/* Form Section */
+.form-section {
+  background: var(--surface); border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card); margin-bottom: 20px; overflow: hidden;
+}
+.form-section-head {
+  padding: 16px 20px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--divider-light);
+}
+.form-section-title {
+  font-size: 15px; font-weight: 600; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.form-section-badge {
+  font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 10px;
+}
+.form-section-body { padding: 20px; }
+
+/* Form elements */
+.form-row { display: flex; align-items: flex-start; margin-bottom: 16px; gap: 12px; }
+.form-row:last-child { margin-bottom: 0; }
+.form-row.align-center { align-items: center; }
+.form-label {
+  width: 100px; min-width: 100px; font-size: 13px; font-weight: 500;
+  color: var(--text-secondary); padding-top: 8px; flex-shrink: 0; text-align: right;
+}
+.form-label .req { color: var(--danger); }
+.form-control { flex: 1; }
+.form-input {
+  width: 100%; padding: 8px 12px; border: 1px solid var(--divider);
+  border-radius: var(--radius-lg); font-size: 13px; color: var(--text-primary);
+  background: var(--surface); outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(193,95,60,0.08); }
+.form-input::placeholder { color: var(--text-tertiary); }
+.form-hint { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; line-height: 1.5; }
+.form-select {
+  width: 100%; padding: 8px 32px 8px 12px; border: 1px solid var(--divider);
+  border-radius: var(--radius-lg); font-size: 13px; color: var(--text-primary);
+  background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238A8580' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+  outline: none; appearance: none; cursor: pointer;
+}
+.form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(193,95,60,0.08); }
+
+/* Toggle */
+.toggle-wrap { display: flex; align-items: center; gap: 12px; }
+.toggle {
+  width: 44px; height: 24px; background: var(--bg-tertiary);
+  border-radius: 12px; position: relative; cursor: pointer;
+  transition: background 0.2s; flex-shrink: 0;
+}
+.toggle.on { background: var(--primary); }
+.toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 20px; height: 20px; background: #fff; border-radius: 50%;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle.on::after { transform: translateX(20px); }
+.toggle-text { font-size: 13px; color: var(--text-secondary); }
+.toggle-text strong { color: var(--text-primary); font-weight: 500; }
+
+/* Image upload area */
+.upload-zone {
+  border: 1.5px dashed var(--divider); border-radius: var(--radius-lg);
+  padding: 16px; text-align: center; cursor: pointer; transition: all 0.2s;
+  background: var(--bg);
+}
+.upload-zone:hover { border-color: var(--primary-light); background: var(--primary-bg); }
+.upload-zone-text { font-size: 13px; color: var(--text-secondary); }
+.upload-zone-hint { font-size: 11px; color: var(--text-tertiary); margin-top: 3px; }
+
+.uploaded-grid {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+}
+.uploaded-item {
+  width: 72px; height: 72px; border-radius: var(--radius-md);
+  background: var(--blue-bg); border: 1px solid rgba(74,127,181,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--blue); position: relative; overflow: hidden;
+}
+.uploaded-item .remove-btn {
+  position: absolute; top: 2px; right: 2px; width: 18px; height: 18px;
+  background: rgba(0,0,0,0.5); color: #fff; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; cursor: pointer; opacity: 0; transition: opacity 0.15s;
+}
+.uploaded-item:hover .remove-btn { opacity: 1; }
+.uploaded-item.add-more {
+  border: 1.5px dashed var(--divider); background: transparent;
+  color: var(--text-tertiary); font-size: 22px; cursor: pointer;
+}
+.uploaded-item.add-more:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Module card */
+.module-card {
+  border: 1px solid var(--divider-light); border-radius: var(--radius-lg);
+  padding: 16px; margin-bottom: 12px; background: var(--bg); position: relative;
+}
+.module-card-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;
+}
+.module-card-title {
+  font-size: 14px; font-weight: 600; color: var(--text-primary);
+  display: flex; align-items: center; gap: 8px;
+}
+.module-card-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  font-size: 12px; font-weight: 600; display: flex;
+  align-items: center; justify-content: center;
+}
+.module-card-actions { display: flex; gap: 4px; }
+.module-action-btn {
+  width: 28px; height: 28px; border-radius: var(--radius-sm);
+  border: none; background: var(--surface); cursor: pointer;
+  font-size: 13px; color: var(--text-secondary);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.module-action-btn:hover { background: var(--danger-bg); color: var(--danger); }
+.module-action-btn.move { cursor: grab; }
+.module-action-btn.move:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+.add-module-btn {
+  width: 100%; padding: 12px; border: 1.5px dashed var(--divider);
+  border-radius: var(--radius-lg); background: transparent;
+  color: var(--primary); font-size: 14px; font-weight: 500;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+  transition: all 0.15s;
+}
+.add-module-btn:hover { background: var(--primary-bg); border-color: var(--primary); }
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: var(--radius-lg);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  border: none; transition: all 0.15s; user-select: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 4px rgba(193,95,60,0.2); }
+.btn-primary:hover { background: #A04E32; }
+.btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+.btn-secondary:hover { background: #C8C4BC; }
+.btn-outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+.btn-outline:hover { background: var(--primary-bg); }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* Tag */
+.tag {
+  display: inline-flex; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 500;
+}
+.tag.built-in { background: var(--blue-bg); color: var(--blue); }
+.tag.custom { background: var(--warning-bg); color: var(--warning); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* Fade in */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fadeIn 0.25s ease-out; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP HEADER ===== -->
+<div class="top-header">
+  <div class="top-header-row">
+    <div class="enterprise-avatar">乐</div>
+    <div class="enterprise-name">乐刻健身</div>
+  </div>
+  <div class="enterprise-stats">
+    <div class="enterprise-stat">
+      <div class="enterprise-stat-num">326</div>
+      <div class="enterprise-stat-label">线下门店</div>
+    </div>
+    <div class="enterprise-stat">
+      <div class="enterprise-stat-num">1,820</div>
+      <div class="enterprise-stat-label">企业成员</div>
+    </div>
+    <div class="enterprise-stat">
+      <div class="enterprise-stat-num">580万</div>
+      <div class="enterprise-stat-label">企业用户</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN TABS ===== -->
+<div class="main-tabs">
+  <div class="main-tab" onclick="switchTab('store')">店铺管理</div>
+  <div class="main-tab active" onclick="switchTab('config')">企业配置</div>
+  <div class="main-tab" onclick="switchTab('member')">成员管理</div>
+</div>
+
+<!-- ===== TAB: 店铺管理 ===== -->
+<div class="page" id="page-store">
+  <div class="page-placeholder">🏢 店铺管理模块</div>
+</div>
+
+<!-- ===== TAB: 企业配置 ===== -->
+<div class="page active" id="page-config">
+  <!-- List View -->
+  <div class="config-list-view" id="configListView">
+    <div class="section-title">配置项</div>
+    <div class="config-cards-grid">
+      <div class="config-card-lg fade-in" onclick="openConfigDetail()">
+        <div class="config-card-lg-top">
+          <div class="config-card-lg-icon">🏬</div>
+          <div class="config-card-lg-title">线下门店配置</div>
+          <span class="config-card-lg-tag" style="background:var(--success-bg);color:var(--success);">已启用</span>
+        </div>
+        <div class="config-card-lg-desc">配置会员到店时的门店服务能力和打卡展示页面，包括服务绑定、店铺头部视频与图片、功能模块入口等。</div>
+        <div class="config-card-lg-footer">
+          <span class="config-card-lg-meta">上次更新：2026-06-08</span>
+          <div class="config-card-lg-arrow">›</div>
+        </div>
+      </div>
+      <!-- 知识库配置 -->
+      <div class="config-card-lg fade-in" onclick="openKnowledgeDetail()" style="animation-delay:0.06s;">
+        <div class="config-card-lg-top">
+          <div class="config-card-lg-icon" style="background:var(--blue-bg);">📚</div>
+          <div class="config-card-lg-title">知识库配置</div>
+          <span class="config-card-lg-tag" style="background:var(--blue-bg);color:var(--blue);">3 个文件</span>
+        </div>
+        <div class="config-card-lg-desc">管理门店的知识库文档，支持上传 PDF、Word、Markdown、Excel 等格式文件，供会员和员工查阅。</div>
+        <div class="config-card-lg-footer">
+          <span class="config-card-lg-meta">上次更新：2026-06-10</span>
+          <div class="config-card-lg-arrow">›</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="detail-view" id="configDetailView">
+    <div class="detail-top-header">
+      <button class="back-btn" onclick="closeConfigDetail()">←</button>
+      <div class="detail-top-title">线下门店配置</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="handlePreview()">预览</button>
+        <button class="btn btn-primary" onclick="handleSave()">保存</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      <!-- Left: Phone Preview -->
+      <div class="preview-panel">
+        <div class="preview-phone">
+          <div class="preview-screen">
+            <div class="preview-notch"></div>
+            <div class="preview-header-media">
+              <div class="preview-video-cover" id="previewVideoArea">
+                <div class="play-icon">▶</div>
+              </div>
+              <div class="preview-image-gallery" id="previewImageGallery">
+                <div class="preview-image-thumb add-btn">+</div>
+              </div>
+            </div>
+            <div class="preview-modules" id="previewModules"></div>
+          </div>
+        </div>
+        <div class="preview-label">页面预览 · 实时更新</div>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="form-area">
+        <!-- Top Row: two columns -->
+        <div class="detail-top-row">
+          <!-- Left: 店铺封面配置 -->
+          <div class="form-section fade-in">
+            <div class="form-section-head">
+              <div class="form-section-title">📱 店铺封面配置</div>
+              <div class="toggle-wrap">
+                <span style="font-size:12px;color:var(--text-tertiary);margin-right:4px;">允许门店调整</span>
+                <div class="toggle on" id="toggleHead" onclick="toggleMini(this,'toggleHeadText')"></div>
+                <span style="font-size:12px;color:var(--text-tertiary);margin-left:2px;" id="toggleHeadText">开启</span>
+              </div>
+            </div>
+            <div class="form-section-body">
+              <div class="form-label" style="width:auto;text-align:left;padding:0;margin-bottom:8px;">视频</div>
+              <div id="videoUploadArea" style="margin-bottom:16px;">
+                <div class="upload-zone" onclick="handleVideoUpload()" style="padding:12px;">
+                  <div style="font-size:20px;margin-bottom:2px;">🎬</div>
+                  <div class="upload-zone-text">上传视频</div>
+                  <div class="upload-zone-hint">限 1 个 MP4 格式，≤60 秒，建议 16:9 比例</div>
+                </div>
+              </div>
+              <div id="videoUploaded" style="display:none;margin-bottom:16px;">
+                <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg);border-radius:var(--radius-lg);border:1px solid var(--divider-light);">
+                  <div style="width:36px;height:36px;background:var(--blue-bg);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:16px;">🎬</div>
+                  <div style="flex:1;">
+                    <div style="font-size:12px;font-weight:500;" id="videoFileName">store_video.mp4</div>
+                    <div style="font-size:11px;color:var(--text-tertiary);" id="videoFileSize">12.3 MB</div>
+                  </div>
+                  <button class="btn btn-sm btn-secondary" onclick="removeVideo()">删除</button>
+                </div>
+              </div>
+              <div class="form-label" style="width:auto;text-align:left;padding:0;margin-bottom:8px;">图片</div>
+              <div class="form-hint" style="margin:0 0 8px 0;">0-9 张，支持 JPG/PNG，单张 ≤2MB，用户端以轮播方式展示</div>
+              <div class="uploaded-grid" id="imageGrid">
+                <div class="uploaded-item add-more" onclick="handleImageUpload()">+</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: 会员服务配置 -->
+          <div class="form-section fade-in" style="border:1.5px solid rgba(196,144,61,0.25);position:relative;">
+            <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--warning),#D4A04A);border-radius:var(--radius-xl) var(--radius-xl) 0 0;"></div>
+            <div class="form-section-head">
+              <div class="form-section-title">
+                ⚙️ 会员服务配置
+                <span class="form-section-badge" style="background:var(--warning-bg);color:var(--warning);">核心配置</span>
+              </div>
+              <div class="toggle-wrap">
+                <span style="font-size:12px;color:var(--text-tertiary);margin-right:4px;">允许门店调整</span>
+                <div class="toggle" id="toggleService" onclick="toggleMini(this,'toggleServiceText')"></div>
+                <span style="font-size:12px;color:var(--text-tertiary);margin-left:2px;" id="toggleServiceText">关闭</span>
+              </div>
+            </div>
+            <div class="form-section-body">
+              <div style="display:flex;gap:8px;align-items:flex-start;padding:10px 14px;background:rgba(196,144,61,0.04);border-radius:var(--radius-lg);margin-bottom:16px;font-size:12px;color:var(--text-secondary);line-height:1.6;">
+                <span style="flex-shrink:0;">⚠️</span>
+                此配置涉及核心业务逻辑，修改后将直接影响会员绑定关系和服务流程，请谨慎操作。
+              </div>
+              <!-- 碰一碰绑定 -->
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px;background:var(--bg);border-radius:var(--radius-lg);margin-bottom:8px;">
+                <div style="flex:1;margin-right:16px;">
+                  <div style="font-size:14px;font-weight:600;color:var(--text-primary);">会员碰一碰绑定到店铺</div>
+                  <div style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.6;">
+                    会员通过手机「碰一碰」或扫码访问配置页面后，将会自动绑定到你的店铺。
+                  </div>
+                  <div style="margin-top:8px;font-size:12px;color:var(--text-tertiary);line-height:1.6;">
+                    绑定后效果：<span style="color:var(--text-secondary);">查看会员打卡、查看会员饮食打卡、查看会员档案</span>
+                  </div>
+                </div>
+                <div class="toggle" id="toggleBind" onclick="toggleServiceToggle(this,'toggleBindHint')" style="flex-shrink:0;margin-top:4px;"></div>
+              </div>
+              <div id="toggleBindHint" style="padding:4px 16px 12px;font-size:12px;color:var(--text-tertiary);">
+                当前：<strong style="color:var(--text-secondary);">关闭</strong> — 会员碰一碰不会自动绑定到店铺
+              </div>
+
+              <!-- 1V1服务群 -->
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:14px 16px;background:var(--bg);border-radius:var(--radius-lg);margin-bottom:8px;">
+                <div style="flex:1;margin-right:16px;">
+                  <div style="font-size:14px;font-weight:600;color:var(--text-primary);">系统引导会员进入 1V1 服务群</div>
+                  <div style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.6;">
+                    开启后，绑定的会员系统将自动创建 1V1 服务群，您可以在群里触达会员。
+                  </div>
+                  <div style="margin-top:8px;font-size:12px;color:var(--text-tertiary);line-height:1.6;">
+                    服务群效果：<span style="color:var(--text-secondary);">商家在群里和会员沟通、AI 助手提醒会员训练、AI 助手解答会员问题</span>
+                  </div>
+                </div>
+                <div class="toggle on" id="toggle1v1" onclick="toggleServiceToggle(this,'toggle1v1Hint')" style="flex-shrink:0;margin-top:4px;"></div>
+              </div>
+              <div id="toggle1v1Hint" style="padding:4px 16px 12px;font-size:12px;color:var(--text-tertiary);">
+                当前：<strong style="color:var(--success);">已开启</strong> — 绑定会员后系统将自动创建 1V1 服务群
+              </div>
+
+              <!-- 入群说明 -->
+              <div style="padding:10px 14px;background:var(--bg);border-radius:var(--radius-lg);font-size:12px;color:var(--text-secondary);line-height:1.6;">
+                开启后将会自动将店长和会员拉入群聊，如需调度其他人，请在商家端 APP 操作。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom: 功能配置 full width -->
+        <div class="form-section fade-in" style="animation-delay:0.1s;">
+          <div class="form-section-head">
+            <div class="form-section-title">⚡ 功能配置</div>
+            <div class="toggle-wrap">
+              <span style="font-size:12px;color:var(--text-tertiary);margin-right:4px;">允许门店调整</span>
+              <div class="toggle" id="toggleModule" onclick="toggleMini(this,'toggleModuleText')"></div>
+              <span style="font-size:12px;color:var(--text-tertiary);margin-left:2px;" id="toggleModuleText">关闭</span>
+            </div>
+          </div>
+          <div class="form-section-body">
+            <div class="form-hint" style="margin-bottom:16px;">
+              配置门店页面的功能入口模块。可使用现有功能或自定义跳转链接。
+            </div>
+            <div id="moduleList"></div>
+            <button class="add-module-btn" onclick="addModule()">＋ 添加功能模块</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Knowledge Base Detail View ===== -->
+<div class="detail-view" id="knowledgeDetailView">
+  <div class="detail-top-header">
+    <button class="back-btn" onclick="closeKnowledgeDetail()">←</button>
+    <div class="detail-top-title">知识库配置</div>
+    <button class="btn btn-primary" onclick="openKnowledgeModal()">＋ 新增知识库</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:24px 28px 40px;">
+    <div id="knowledgeList"></div>
+  </div>
+</div>
+
+<!-- Knowledge Base Upload Modal -->
+<div id="knowledgeModal" style="display:none;position:fixed;inset:0;background:rgba(45,42,38,0.45);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:var(--radius-xl);padding:24px;width:480px;max-width:90vw;max-height:80vh;overflow-y:auto;" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:600;margin-bottom:20px;">新增知识库</div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">知识库名称 <span style="color:var(--danger);">*</span></div>
+      <input class="form-input" id="kbName" placeholder="请输入知识库名称">
+    </div>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:13px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">上传文件 <span style="color:var(--danger);">*</span></div>
+      <div class="upload-zone" id="kbFileUpload" onclick="document.getElementById('kbFileInput').click()" style="padding:24px;text-align:center;">
+        <div style="font-size:28px;margin-bottom:6px;">📎</div>
+        <div class="upload-zone-text">点击上传文件</div>
+        <div class="upload-zone-hint">支持 PDF、Word、Markdown、Excel 格式</div>
+      </div>
+      <input type="file" id="kbFileInput" style="display:none;" accept=".pdf,.doc,.docx,.md,.xlsx,.xls" onchange="handleKbFileSelect(this)">
+      <div id="kbFilePreview" style="display:none;margin-top:8px;padding:10px 12px;background:var(--bg);border-radius:var(--radius-lg);border:1px solid var(--divider-light);">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;" id="kbFileIcon">📄</span>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:500;" id="kbFileName">file.pdf</div>
+            <div style="font-size:11px;color:var(--text-tertiary);" id="kbFileSize">1.2 MB</div>
+          </div>
+          <button class="btn btn-sm btn-secondary" onclick="resetKbFile()">删除</button>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:20px;display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeKnowledgeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveKnowledge()">确认添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: 成员管理 ===== -->
+<div class="page" id="page-member">
+  <div class="page-placeholder">👥 成员管理模块</div>
+</div>
+
+<!-- Add Module Modal -->
+<div id="addModuleModal" style="display:none;position:fixed;inset:0;background:rgba(45,42,38,0.45);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:var(--radius-xl);padding:24px;width:440px;max-width:90vw;max-height:80vh;overflow-y:auto;" onclick="event.stopPropagation()">
+    <div style="font-size:16px;font-weight:600;margin-bottom:20px;">选择功能模块</div>
+    <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:10px;">现有功能</div>
+    <div id="builtinModuleList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;"></div>
+    <div style="font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:10px;">自定义配置</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="config-card" style="padding:12px 16px;" onclick="addCustomModule('h5')">
+        <div style="width:32px;height:32px;border-radius:var(--radius-md);background:var(--warning-bg);display:flex;align-items:center;justify-content:center;font-size:16px;">🔗</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;">H5 链接</div>
+          <div style="font-size:12px;color:var(--text-tertiary);">自定义 H5 网页跳转</div>
+        </div>
+        <div style="color:var(--text-quaternary);">›</div>
+      </div>
+      <div class="config-card" style="padding:12px 16px;" onclick="addCustomModule('miniprogram')">
+        <div style="width:32px;height:32px;border-radius:var(--radius-md);background:var(--success-bg);display:flex;align-items:center;justify-content:center;font-size:16px;">💚</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:500;">小程序链接</div>
+          <div style="font-size:12px;color:var(--text-tertiary);">跳转到指定小程序页面</div>
+        </div>
+        <div style="color:var(--text-quaternary);">›</div>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:20px;">
+      <button class="btn btn-secondary" onclick="closeAddModuleModal()">取消</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="display:none;position:fixed;bottom:40px;left:50%;transform:translateX(-50%);background:var(--text-primary);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;z-index:300;transition:opacity 0.3s;"></div>
+
+<script>
+// ===== DATA =====
+const BUILTIN_MODULES = [
+  { id: 'training',   icon: '💪', label: '记录训练', desc: '跳转到会员端训练页面' },
+  { id: 'equipment',  icon: '🏋️', label: '器械教学', desc: '跳转到会员端音视频页面' },
+  { id: 'reminder',   icon: '⏰', label: '训练提醒', desc: '跳转到会员端训练提醒设置页面' },
+  { id: 'diet',       icon: '🥗', label: '饮食打卡', desc: '跳转到会员端饮食打卡页面' },
+  { id: 'service',    icon: '🛒', label: '场馆服务', desc: '跳转到店铺商品购买页面' },
+  { id: 'wechat',     icon: '💬', label: '添加微信', desc: '需上传企微或个微二维码' },
+];
+
+let imageCount = 0;
+const MAX_IMAGES = 9;
+
+// ===== TAB SWITCHING =====
+function switchTab(tab) {
+  document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('page-' + tab).classList.add('active');
+  // Reset detail view when switching tabs
+  if (tab === 'config') {
+    document.getElementById('configListView').style.display = '';
+    document.getElementById('configDetailView').classList.remove('active');
+    document.getElementById('knowledgeDetailView').classList.remove('active');
+  }
+}
+
+// ===== CONFIG LIST / DETAIL =====
+function openConfigDetail() {
+  document.getElementById('configListView').style.display = 'none';
+  document.getElementById('configDetailView').classList.add('active');
+  renderModules();
+  renderPreview();
+}
+function closeConfigDetail() {
+  document.getElementById('configDetailView').classList.remove('active');
+  document.getElementById('configListView').style.display = '';
+}
+
+// ===== KNOWLEDGE BASE =====
+let knowledgeItems = [
+  { id: 1, name: '门店服务手册', fileName: '门店服务手册.pdf', fileSize: '2.4 MB', fileType: 'pdf', date: '2026-06-08' },
+  { id: 2, name: '器械使用指南', fileName: '器械使用指南.docx', fileSize: '1.8 MB', fileType: 'word', date: '2026-06-05' },
+  { id: 3, name: '会员权益说明', fileName: '会员权益说明.md', fileSize: '12 KB', fileType: 'md', date: '2026-06-01' },
+];
+let kbIdCounter = 4;
+
+function openKnowledgeDetail() {
+  document.getElementById('configListView').style.display = 'none';
+  document.getElementById('knowledgeDetailView').classList.add('active');
+  renderKnowledgeList();
+}
+function closeKnowledgeDetail() {
+  document.getElementById('knowledgeDetailView').classList.remove('active');
+  document.getElementById('configListView').style.display = '';
+}
+function renderKnowledgeList() {
+  const list = document.getElementById('knowledgeList');
+  if (knowledgeItems.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text-tertiary);font-size:14px;"><div style="font-size:40px;margin-bottom:12px;">📚</div>暂无知识库文档<br><span style="font-size:12px;">点击右上角"新增知识库"添加第一个文件</span></div>';
+    return;
+  }
+  const fileIcons = { pdf: '📕', word: '📘', md: '📝', excel: '📗', default: '📄' };
+  list.innerHTML = knowledgeItems.map(item => `
+    <div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-card);margin-bottom:12px;border:1px solid var(--divider-light);transition:all 0.15s;"
+      onmouseenter="this.style.borderColor='var(--primary-light)'" onmouseleave="this.style.borderColor='var(--divider-light)'">
+      <div style="width:44px;height:44px;border-radius:var(--radius-lg);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">
+        ${fileIcons[item.fileType] || fileIcons.default}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+        <div style="font-size:12px;color:var(--text-tertiary);margin-top:3px;">${item.fileName} · ${item.fileSize} · ${item.date}</div>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="deleteKnowledge(${item.id})" style="flex-shrink:0;">删除</button>
+    </div>
+  `).join('');
+}
+function openKnowledgeModal() {
+  document.getElementById('knowledgeModal').style.display = 'flex';
+  document.getElementById('kbName').value = '';
+  resetKbFile();
+}
+function closeKnowledgeModal() {
+  document.getElementById('knowledgeModal').style.display = 'none';
+}
+function handleKbFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const typeMap = { pdf: 'pdf', doc: 'word', docx: 'word', md: 'md', xlsx: 'excel', xls: 'excel' };
+  document.getElementById('kbFilePreview').style.display = 'block';
+  document.getElementById('kbFileUpload').style.display = 'none';
+  document.getElementById('kbFileName').textContent = file.name;
+  document.getElementById('kbFileSize').textContent = (file.size / 1024 / 1024).toFixed(1) + ' MB';
+  document.getElementById('kbFileIcon').textContent = { pdf: '📕', word: '📘', md: '📝', excel: '📗' }[typeMap[ext]] || '📄';
+}
+function resetKbFile() {
+  document.getElementById('kbFilePreview').style.display = 'none';
+  document.getElementById('kbFileUpload').style.display = '';
+  document.getElementById('kbFileInput').value = '';
+}
+function saveKnowledge() {
+  const name = document.getElementById('kbName').value.trim();
+  const fileInput = document.getElementById('kbFileInput');
+  if (!name) { showToast('请输入知识库名称'); return; }
+  if (!fileInput.files.length) { showToast('请上传文件'); return; }
+  const file = fileInput.files[0];
+  const ext = file.name.split('.').pop().toLowerCase();
+  const typeMap = { pdf: 'pdf', doc: 'word', docx: 'word', md: 'md', xlsx: 'excel', xls: 'excel' };
+  knowledgeItems.unshift({
+    id: kbIdCounter++, name, fileName: file.name,
+    fileSize: (file.size / 1024 / 1024).toFixed(1) + ' MB',
+    fileType: typeMap[ext] || 'default',
+    date: new Date().toISOString().slice(0, 10)
+  });
+  closeKnowledgeModal();
+  renderKnowledgeList();
+  showToast('知识库已添加');
+}
+function deleteKnowledge(id) {
+  knowledgeItems = knowledgeItems.filter(item => item.id !== id);
+  renderKnowledgeList();
+  showToast('已删除');
+}
+
+
+
+// ===== PER-SECTION TOGGLE =====
+function toggleMini(el, textId) {
+  el.classList.toggle('on');
+  document.getElementById(textId).textContent = el.classList.contains('on') ? '开启' : '关闭';
+}
+
+// ===== SERVICE TOGGLE =====
+function toggleServiceToggle(el, hintId) {
+  el.classList.toggle('on');
+  const on = el.classList.contains('on');
+  const hint = document.getElementById(hintId);
+  if (hintId === 'toggleBindHint') {
+    hint.innerHTML = on
+      ? '当前状态：<strong style="color:var(--success);">已开启</strong> — 会员碰一碰将自动绑定到店铺'
+      : '当前状态：<strong style="color:var(--text-secondary);">关闭</strong> — 会员碰一碰不会自动绑定到店铺';
+  } else {
+    hint.innerHTML = on
+      ? '当前状态：<strong style="color:var(--success);">已开启</strong> — 绑定会员后系统将自动创建 1V1 服务群'
+      : '当前状态：<strong style="color:var(--text-secondary);">关闭</strong> — 绑定会员后不会自动创建 1V1 服务群';
+  }
+}
+
+// ===== VIDEO =====
+function handleVideoUpload() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'video/mp4';
+  input.onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    document.getElementById('videoUploadArea').style.display = 'none';
+    document.getElementById('videoUploaded').style.display = 'block';
+    document.getElementById('videoFileName').textContent = file.name;
+    document.getElementById('videoFileSize').textContent = (file.size / 1024 / 1024).toFixed(1) + ' MB';
+    renderPreview();
+      showToast('视频已上传');
+  };
+  input.click();
+}
+function removeVideo() {
+  document.getElementById('videoUploadArea').style.display = '';
+  document.getElementById('videoUploaded').style.display = 'none';
+  renderPreview();
+}
+
+// ===== IMAGES =====
+function handleImageUpload() {
+  if (imageCount >= MAX_IMAGES) { showToast('最多上传 9 张图片'); return; }
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/jpeg,image/png'; input.multiple = true;
+  input.onchange = function(e) {
+    const files = Array.from(e.target.files);
+    const canAdd = MAX_IMAGES - imageCount;
+    const toAdd = files.slice(0, canAdd);
+    toAdd.forEach(f => { imageCount++; });
+    if (files.length > canAdd) showToast('已达到最多 9 张限制');
+    renderImageGrid();
+    };
+  input.click();
+}
+function removeImage() {
+  imageCount = Math.max(0, imageCount - 1);
+  renderImageGrid();
+}
+function renderImageGrid() {
+  const grid = document.getElementById('imageGrid');
+  let html = '';
+  for (let i = 0; i < imageCount; i++) {
+    html += `<div class="uploaded-item">图片${i+1}<div class="remove-btn" onclick="removeImage()">✕</div></div>`;
+  }
+  if (imageCount < MAX_IMAGES) {
+    html += `<div class="uploaded-item add-more" onclick="handleImageUpload()">+</div>`;
+  }
+  grid.innerHTML = html;
+  renderPreview();
+}
+
+// ===== MODULES =====
+let modules = [
+  { type: 'builtin', builtinId: 'training', title: '记录训练', desc: '跳转到会员端训练页面', icon: '💪' },
+  { type: 'builtin', builtinId: 'equipment', title: '器械教学', desc: '跳转到会员端音视频页面', icon: '🏋️' },
+  { type: 'builtin', builtinId: 'reminder', title: '训练提醒', desc: '跳转到会员端训练提醒设置页面', icon: '⏰' },
+];
+
+function renderModules() {
+  const list = document.getElementById('moduleList');
+  if (modules.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">你还没有配置任何功能</div>';
+    return;
+  }
+  list.innerHTML = modules.map((m, i) => `
+    <div class="module-card">
+      <div class="module-card-header">
+        <div class="module-card-title">
+          <span class="module-card-num">${i + 1}</span>
+          ${m.icon} ${m.title}
+          ${m.type === 'builtin'
+            ? '<span class="tag built-in">现有功能</span>'
+            : '<span class="tag custom">' + (m.linkType === 'h5' ? 'H5' : '小程序') + '</span>'}
+        </div>
+        <div class="module-card-actions">
+          ${i > 0 ? `<button class="module-action-btn move" title="上移" onclick="moveModule(${i},-1)">↑</button>` : ''}
+          ${i < modules.length - 1 ? `<button class="module-action-btn move" title="下移" onclick="moveModule(${i},1)">↓</button>` : ''}
+          <button class="module-action-btn" title="删除" onclick="deleteModule(${i})">✕</button>
+        </div>
+      </div>
+      ${renderModuleForm(m, i)}
+    </div>
+  `).join('');
+  renderPreview();
+}
+
+function renderModuleForm(m, i) {
+  let extraFields = '';
+  if (m.builtinId === 'wechat') {
+    extraFields = `
+      <div class="form-row"><div class="form-label">二维码</div><div class="form-control">
+        <div class="upload-zone" style="padding:12px;" onclick="showToast('请上传二维码图片')">
+          <div class="upload-zone-text" style="font-size:12px;">点击上传企微/个微二维码（≤3MB，裁剪比例 1:1）</div>
+        </div>
+      </div></div>`;
+  }
+  return `
+    <div class="form-row"><div class="form-label">配置标题</div><div class="form-control">
+      <input class="form-input" value="${m.title}" onchange="updateModule(${i},'title',this.value)" placeholder="功能显示标题（10字以内）" maxlength="10">
+    </div></div>
+    <div class="form-row"><div class="form-label">配置描述</div><div class="form-control">
+      <input class="form-input" value="${m.desc}" onchange="updateModule(${i},'desc',this.value)" placeholder="功能描述（15字以内）" maxlength="15">
+    </div></div>
+    <div class="form-row align-center"><div class="form-label">配置图标</div><div class="form-control">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:28px;">${m.icon}</span>
+        <button class="btn btn-sm btn-secondary" onclick="changeIcon(${i})">更换图标</button>
+      </div>
+    </div></div>
+    <div class="form-row"><div class="form-label">功能跳转</div><div class="form-control">
+      <div style="padding:8px 12px;background:var(--bg);border-radius:var(--radius-lg);font-size:13px;color:var(--text-secondary);">
+        ${BUILTIN_MODULES.find(b => b.id === m.builtinId)?.desc || '自定义跳转'}
+      </div>
+    </div></div>
+    ${extraFields}`;
+}
+
+function updateModule(i, key, val) {
+  modules[i][key] = val;
+}
+
+function moveModule(i, dir) {
+  const j = i + dir;
+  [modules[i], modules[j]] = [modules[j], modules[i]];
+  renderModules();
+}
+
+function deleteModule(i) {
+  modules.splice(i, 1);
+  renderModules();
+}
+
+function addModule() {
+  const usedIds = modules.filter(m => m.type === 'builtin').map(m => m.builtinId);
+  const list = document.getElementById('builtinModuleList');
+  list.innerHTML = BUILTIN_MODULES.map(b => {
+    const used = usedIds.includes(b.id);
+    return `<div class="config-card" style="padding:10px 14px;${used ? 'opacity:0.4;pointer-events:none;' : ''}"
+      onclick="${used ? '' : `addBuiltinModule('${b.id}')`}">
+      <div style="font-size:20px;">${b.icon}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;">${b.label}</div>
+        <div style="font-size:12px;color:var(--text-tertiary);">${b.desc}</div>
+      </div>
+      ${used ? '<span class="tag built-in">已添加</span>' : '<div style="color:var(--text-quaternary);">›</div>'}
+    </div>`;
+  }).join('');
+  document.getElementById('addModuleModal').style.display = 'flex';
+}
+
+function closeAddModuleModal() {
+  document.getElementById('addModuleModal').style.display = 'none';
+}
+
+function addBuiltinModule(id) {
+  const b = BUILTIN_MODULES.find(x => x.id === id);
+  modules.push({ type: 'builtin', builtinId: id, title: b.label, desc: b.desc, icon: b.icon });
+  closeAddModuleModal();
+  renderModules();
+  renderPreview();
+  showToast('已添加: ' + b.label);
+}
+
+function addCustomModule(linkType) {
+  if (linkType === 'h5') {
+    modules.push({ type: 'custom', linkType: 'h5', title: '自定义页面', desc: '', icon: '🔗', url: '' });
+  } else {
+    modules.push({ type: 'custom', linkType: 'miniprogram', title: '自定义小程序', desc: '', icon: '💚', appid: '', path: '' });
+  }
+  closeAddModuleModal();
+  renderModules();
+  renderPreview();
+  showToast('已添加自定义模块');
+}
+
+function changeIcon(i) {
+  const icons = ['💪','🏋️','⏰','🥗','🛒','💬','🔗','💚','📱','🎯','⭐','🔥','❤️','🏃','🧘','🚴','🏊','🥊','🎵','📸'];
+  const pick = icons[Math.floor(Math.random() * icons.length)];
+  modules[i].icon = pick;
+  renderModules();
+}
+
+// ===== PREVIEW =====
+function renderPreview() {
+  const videoArea = document.getElementById('previewVideoArea');
+  if (!videoArea) return;
+  const hasVideo = document.getElementById('videoUploaded').style.display === 'block';
+  videoArea.style.background = hasVideo
+    ? 'linear-gradient(135deg, #4A7FB5, #2D5A8A)'
+    : 'linear-gradient(135deg, #2D2A26, #555)';
+  videoArea.innerHTML = hasVideo
+    ? '<div class="play-icon">▶</div><div style="position:absolute;bottom:6px;right:8px;font-size:10px;color:rgba(255,255,255,0.7);">视频已上传</div>'
+    : '<div class="play-icon">▶</div>';
+
+  const gallery = document.getElementById('previewImageGallery');
+  let gHtml = '';
+  for (let i = 0; i < imageCount; i++) {
+    gHtml += `<div class="preview-image-thumb has-img">图${i+1}</div>`;
+  }
+  gHtml += '<div class="preview-image-thumb add-btn">+</div>';
+  gallery.innerHTML = gHtml;
+
+  const modulesEl = document.getElementById('previewModules');
+  modulesEl.innerHTML = modules.map(m => `
+    <div class="preview-module-item">
+      <div class="preview-module-icon">${m.icon}</div>
+      <div class="preview-module-text">
+        <div class="preview-module-title">${m.title}</div>
+        <div class="preview-module-desc">${m.desc || ''}</div>
+      </div>
+    </div>
+  `).join('');
+  if (modules.length === 0) {
+    modulesEl.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:12px;font-size:11px;color:var(--text-tertiary);">暂无功能模块</div>';
+  }
+}
+
+// ===== SAVE / PREVIEW =====
+function handleSave() {
+  showToast('配置已保存成功');
+}
+function handlePreview() {
+  showToast('已生成预览链接');
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block'; t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => { t.style.display = 'none'; }, 300); }, 2000);
+}
+
+
+// Init preview
+renderPreview();
+
+// Close modal on backdrop
+document.getElementById('addModuleModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddModuleModal();
+});
+document.getElementById('knowledgeModal').addEventListener('click', function(e) {
+  if (e.target === this) closeKnowledgeModal();
+});
+</script>
+</body>
+</html>
