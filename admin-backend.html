@@ -968,6 +968,13 @@ function renderImageGrid() {
 }
 
 // ===== MODULES =====
+const PINNED_MODULE = {
+  type: 'pinned', builtinId: 'checkin', title: '线下门店打卡',
+  desc: '配置门店地址后，会员到店可手动开始计时打卡，离店再次打卡即可完成到店记录，自动生成打卡数据。',
+  icon: '📍',
+  img: 'https://prd-cos.litta.cn/litta-resources/sanduo/screenshot-20260612-144538.png'
+};
+
 let modules = [
   { type: 'builtin', builtinId: 'training', title: '记录训练', desc: '跳转到会员端训练页面', icon: '💪' },
   { type: 'builtin', builtinId: 'equipment', title: '器械教学', desc: '跳转到会员端音视频页面', icon: '🏋️' },
@@ -976,29 +983,73 @@ let modules = [
 
 function renderModules() {
   const list = document.getElementById('moduleList');
-  if (modules.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">你还没有配置任何功能</div>';
-    return;
-  }
-  list.innerHTML = modules.map((m, i) => `
-    <div class="module-card">
+  let html = '';
+
+  // Pinned module - 门店打卡
+  html += `
+    <div class="module-card" style="border:1.5px solid rgba(107,143,91,0.3);position:relative;">
+      <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--success),#8BAF7B);border-radius:var(--radius-xl) var(--radius-xl) 0 0;"></div>
       <div class="module-card-header">
         <div class="module-card-title">
-          <span class="module-card-num">${i + 1}</span>
-          ${m.icon} ${m.title}
-          ${m.type === 'builtin'
-            ? '<span class="tag built-in">现有功能</span>'
-            : '<span class="tag custom">' + (m.linkType === 'h5' ? 'H5' : '小程序') + '</span>'}
-        </div>
-        <div class="module-card-actions">
-          ${i > 0 ? `<button class="module-action-btn move" title="上移" onclick="moveModule(${i},-1)">↑</button>` : ''}
-          ${i < modules.length - 1 ? `<button class="module-action-btn move" title="下移" onclick="moveModule(${i},1)">↓</button>` : ''}
-          <button class="module-action-btn" title="删除" onclick="deleteModule(${i})">✕</button>
+          <span class="module-card-num" style="background:var(--success);">1</span>
+          ${PINNED_MODULE.icon} ${PINNED_MODULE.title}
+          <span class="tag" style="background:var(--success-bg);color:var(--success);">系统内置</span>
+          <span class="tag" style="background:rgba(177,173,161,0.15);color:var(--text-tertiary);">置顶</span>
         </div>
       </div>
-      ${renderModuleForm(m, i)}
-    </div>
-  `).join('');
+      <div style="padding:0 0 4px;">
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px;">
+          ${PINNED_MODULE.desc}
+        </div>
+        <div style="font-size:12px;color:var(--text-tertiary);margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+          <span>📋</span> 功能说明
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div style="padding:8px 12px;background:var(--bg);border-radius:var(--radius-md);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--success);">✓</span> 需配置门店地址
+          </div>
+          <div style="padding:8px 12px;background:var(--bg);border-radius:var(--radius-md);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--success);">✓</span> 会员到店手动打卡
+          </div>
+          <div style="padding:8px 12px;background:var(--bg);border-radius:var(--radius-md);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--success);">✓</span> 离店再次打卡完成记录
+          </div>
+          <div style="padding:8px 12px;background:var(--bg);border-radius:var(--radius-md);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;">
+            <span style="color:var(--success);">✓</span> 自动生成打卡数据
+          </div>
+        </div>
+        <div style="border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--divider-light);">
+          <img src="${PINNED_MODULE.img}" style="width:100%;display:block;" alt="线下门店打卡功能示意图" onerror="this.parentElement.innerHTML='<div style=padding:40px;text-align:center;background:var(--bg);color:var(--text-tertiary);font-size:13px;>功能示意图</div>'">
+        </div>
+      </div>
+    </div>`;
+
+  // Regular modules
+  if (modules.length === 0) {
+    html += '<div style="text-align:center;padding:20px;color:var(--text-tertiary);font-size:13px;">你还没有配置其他功能</div>';
+  } else {
+    html += modules.map((m, i) => `
+      <div class="module-card">
+        <div class="module-card-header">
+          <div class="module-card-title">
+            <span class="module-card-num">${i + 2}</span>
+            ${m.icon} ${m.title}
+            ${m.type === 'builtin'
+              ? '<span class="tag built-in">现有功能</span>'
+              : '<span class="tag custom">' + (m.linkType === 'h5' ? 'H5' : '小程序') + '</span>'}
+          </div>
+          <div class="module-card-actions">
+            ${i > 0 ? `<button class="module-action-btn move" title="上移" onclick="moveModule(${i},-1)">↑</button>` : ''}
+            ${i < modules.length - 1 ? `<button class="module-action-btn move" title="下移" onclick="moveModule(${i},1)">↓</button>` : ''}
+            <button class="module-action-btn" title="删除" onclick="deleteModule(${i})">✕</button>
+          </div>
+        </div>
+        ${renderModuleForm(m, i + 1)}
+      </div>
+    `).join('');
+  }
+
+  list.innerHTML = html;
   renderPreview();
 }
 
@@ -1119,7 +1170,8 @@ function renderPreview() {
   gallery.innerHTML = gHtml;
 
   const modulesEl = document.getElementById('previewModules');
-  modulesEl.innerHTML = modules.map(m => `
+  const allModules = [PINNED_MODULE, ...modules];
+  modulesEl.innerHTML = allModules.map(m => `
     <div class="preview-module-item">
       <div class="preview-module-icon">${m.icon}</div>
       <div class="preview-module-text">
